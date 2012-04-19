@@ -1,5 +1,26 @@
-/**
+/*
+ * Copyright (c) 2012, Eric Coolman, 1815750 Ontario Inc. and/or its 
+ * affiliates. All rights reserved.
  * 
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  1815750 Ontario Inc designates 
+ * this  * particular file as subject to the "Classpath" exception as provided
+ * in the LICENSE file that accompanied this code.
+ *  
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ * 
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * 
+ * Please contact 1815750 Ontario Inc. through http://www.coolman.ca/ if you 
+ * need additional information or have any questions.
  */
 package ca.coolman.auth.oauth1;
 
@@ -11,8 +32,9 @@ import java.util.Hashtable;
 import com.codename1.io.Externalizable;
 
 /**
- * @author ecoolman
  * 
+ * @author Eric Coolman
+ *
  */
 public class AccessToken implements Token, Externalizable {
 	public static final String OBJECT_ID = "access_token";
@@ -33,15 +55,14 @@ public class AccessToken implements Token, Externalizable {
 	 * @param id
 	 * @param screenName
 	 */
-	AccessToken(String token, String secret, long id,
-			String screenName) {
+	AccessToken(String token, String secret, long id, String screenName) {
 		super();
 		this.token = token;
 		this.secret = secret;
 		this.id = id;
 		this.screenName = screenName;
 	}
-	
+
 	/**
 	 * @return the token
 	 */
@@ -91,7 +112,7 @@ public class AccessToken implements Token, Externalizable {
 		id = is.readLong();
 		screenName = DataInputStream.readUTF(is);
 	}
-	
+
 	public void read(Hashtable h) {
 		this.token = (String) h.get(TOKEN);
 		this.secret = (String) h.get(TOKEN_SECRET);
