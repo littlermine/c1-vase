@@ -89,6 +89,7 @@ public class AccessToken implements Token, Externalizable {
 	}
 
 	public void applyParameters(Hashtable target) {
+		target.put(TOKEN, getToken());
 	}
 
 	public void externalize(DataOutputStream os) throws IOException {
