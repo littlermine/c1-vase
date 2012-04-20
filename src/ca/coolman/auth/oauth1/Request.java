@@ -35,7 +35,7 @@ import com.codename1.io.Util;
  * @author Eric Coolman
  *
  */
-class Request extends ConnectionRequest {
+class Request extends ConnectionRequest implements SignableService {
 	static final String BASEURL = "http://api.twitter.com/oauth/";
 
 	private Signer signer;
@@ -46,8 +46,6 @@ class Request extends ConnectionRequest {
 	public Request(Signer signer) {
 		this.signer = signer;
 	}
-
-
 
 	protected void signRequest(Token token) {
 		signer.sign(this, token);
@@ -81,6 +79,10 @@ class Request extends ConnectionRequest {
 			}
 		}
 		return response;
+	}
+
+	public void applyParameters(Hashtable target) {
+		// oauth requests shouldn't have any parameters.
 	}
 
 }
