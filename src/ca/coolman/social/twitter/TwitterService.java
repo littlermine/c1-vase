@@ -24,24 +24,36 @@
  */
 package ca.coolman.social.twitter;
 
+import java.util.Enumeration;
+import java.util.Hashtable;
+
+import ca.coolman.auth.oauth1.SignedService;
+
 import com.codename1.io.services.TwitterRESTService;
 
 /**
  * @author Eric Coolman
  * 
  */
-public class TwitterService extends TwitterRESTService {
-	//private static final String CALLBACK = "http://www.themmaapp.com/sign-in-with-twitter";
+public class TwitterService extends TwitterRESTService implements SignedService {
 	private boolean rateLimited;
-	private boolean requiresAuth;
-
+	private boolean authRequired;
+	private Hashtable arguments; 
+	private String method;
+	
 	public TwitterService(String method, String version, boolean post,
-			boolean requiresAuth, boolean rateLimited) {
+			boolean authRequired, boolean rateLimited) {
 		super(method, version, post);
+		this.method = method;
 		this.rateLimited = rateLimited;
-		this.requiresAuth = requiresAuth;
+		this.authRequired = authRequired;
+		this.arguments = new Hashtable();
 	}
 
+	protected String getMethod() {
+		return method;
+	}
+	
 	/**
 	 * @return the rateLimited
 	 */
@@ -50,10 +62,24 @@ public class TwitterService extends TwitterRESTService {
 	}
 
 	/**
-	 * @return the requiresAuth
+	 * @return the authRequired
 	 */
-	public boolean isRequiresAuth() {
-		return requiresAuth;
+	public boolean isAuthRequired() {
+		return authRequired;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.codename1.io.ConnectionRequest#addArgument(java.lang.String, java.lang.String)
+	 */
+	public void addArgument(String key, String value) {
+		this.arguments.put(key, value);
+		super.addArgument(key, value);
+	}
+
+	public void applyParameters(Hashtable target) {
+		for (Enumeration e = arguments.keys(); e.hasMoreElements() ; ) {
+			String key = (String)e.nextElement();
+			target.put(key, arguments.get(key));
+		}
+	}
 }
