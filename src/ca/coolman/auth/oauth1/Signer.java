@@ -49,6 +49,7 @@ public class Signer {
 	static final String NONCE = "oauth_nonce";
 	static final String VERSION = "oauth_version";
 	static final String POST = "POST";
+	static final String GET = "GET";
 	static final String DELIMITER = "&";
 	private String consumerSecret;
 	private String consumerKey;
@@ -86,7 +87,8 @@ public class Signer {
 	protected String createSignatureBase(ConnectionRequest request,
 			Hashtable params) {
 		params.put(CONSUMER_KEY, consumerKey);
-		return POST + DELIMITER + Encoders.encodeRFC3986(request.getUrl())
+		String method = request.isPost() ? POST : GET;
+		return method + DELIMITER + Encoders.encodeRFC3986(request.getUrl())
 				+ DELIMITER + Encoders.encodeRFC3986(toQueryString(params));
 	}
 
