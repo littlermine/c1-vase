@@ -29,11 +29,10 @@ import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import com.codename1.io.ConnectionRequest;
-import com.codename1.io.Log;
-
 import ca.coolman.util.Encoders;
 import ca.coolman.util.SortedHashtable;
+
+import com.codename1.io.Log;
 
 /**
  * 
@@ -62,9 +61,10 @@ public class Signer {
 		this.signer = signer;
 	}
 
-	public void sign(ConnectionRequest request, Token token) {
+	public void sign(SignedService request, Token token) {
 		Hashtable params = createParameters();
 		token.applyParameters(params);
+		request.applyParameters(params);
 		String base = createSignatureBase(request, params);
 		Log.p(base, Log.DEBUG);
 		params.put(SIGNATURE, createSignature(base, token));
@@ -84,7 +84,7 @@ public class Signer {
 		return "OAuth " + toQueryString(params, true, "\"", ",");
 	}
 
-	protected String createSignatureBase(ConnectionRequest request,
+	protected String createSignatureBase(SignedService request,
 			Hashtable params) {
 		params.put(CONSUMER_KEY, consumerKey);
 		String method = request.isPost() ? POST : GET;

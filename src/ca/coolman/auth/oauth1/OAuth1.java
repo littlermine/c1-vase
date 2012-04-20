@@ -75,7 +75,7 @@ public class OAuth1 {
 		this.callback = callback;
 	}
 
-	public void signRequest(SignableService request, AccessToken token) {
+	public void signRequest(SignedService request, AccessToken token) {
 		signer.sign(request, token);
 	}
 

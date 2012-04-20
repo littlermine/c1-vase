@@ -26,63 +26,38 @@ package ca.coolman.auth.oauth1;
 
 import java.util.Hashtable;
 
-import com.codename1.io.ConnectionRequest;
-import com.codename1.io.Log;
-import com.codename1.io.Util;
-
 /**
- * 
  * @author Eric Coolman
  *
  */
-class Request extends ConnectionRequest implements SignedService {
-	static final String BASEURL = "http://api.twitter.com/oauth/";
-
-	private Signer signer;
+public interface SignedService {
+	/**
+	 * Implementer should pass all header and body parameters to the target
+	 * to be used in the signing process. 
+	 * 
+	 * @param target
+	 */
+	public void applyParameters(Hashtable target);
 	
 	/**
+	 * Get the service endpoint URL for this service.
 	 * 
+	 * @return service endpoint URL.
 	 */
-	public Request(Signer signer) {
-		this.signer = signer;
-	}
-
-	protected void signRequest(Token token) {
-		signer.sign(this, token);
-	}
-
-	protected Hashtable getUrlParameters(String url) {
-		String query = Util.getURLPath(url);
-		int index = query.indexOf("?");
-		if (index == -1) {
-			return null;
-		}
-		query = query.substring(index + 1);
-		return parseQuery(query);
-	}
-
-	protected Hashtable parseQuery(String query) {
-		return parseQuery(query, "&");
-	}
+	public String getUrl();
 	
-	protected Hashtable parseQuery(String query, String delimiter) {
-		String elements[] = Util.split(query, delimiter);
-		Hashtable response = new Hashtable();
-		for (int i = 0; i < elements.length; i++) {
-			String namevalue[] = Util.split(elements[i], "=");
-			if (namevalue.length == 2) {
-				response.put(namevalue[0], namevalue[1]);
-			} else if (namevalue.length == 1) {
-				response.put(namevalue[0], "");
-			} else {
-				Log.p("Error parsing query " + i + ":" + elements[i]);
-			}
-		}
-		return response;
-	}
-
-	public void applyParameters(Hashtable target) {
-		// oauth requests shouldn't have any parameters.
-	}
-
+	/**
+	 * Determine if request is a POST or a GET request. 
+	 * 
+	 * @return true of a POST request, otherwise false.
+	 */
+	public boolean isPost();
+	
+	/**
+	 * Add a header name/value to the service request.
+	 * 
+	 * @param name name of header value.
+	 * @param value value of header value.
+	 */
+	public void addRequestHeader(String name, String value);
 }
