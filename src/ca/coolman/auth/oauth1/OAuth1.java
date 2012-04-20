@@ -29,7 +29,6 @@ import java.util.Hashtable;
 import ca.coolman.components.ObservableWebBrowser;
 
 import com.codename1.components.WebBrowser;
-import com.codename1.io.ConnectionRequest;
 import com.codename1.io.NetworkManager;
 import com.codename1.io.Storage;
 import com.codename1.io.Util;
@@ -76,7 +75,7 @@ public class OAuth1 {
 		this.callback = callback;
 	}
 
-	public void signRequest(ConnectionRequest request, AccessToken token) {
+	public void signRequest(SignableService request, AccessToken token) {
 		signer.sign(request, token);
 	}
 
