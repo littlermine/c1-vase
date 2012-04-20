@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="c1-vase" basedir=".">
+	<description>Builds, tests, and runs the project c1-vase.</description>
+	<property file="build.props" />
+	<target name="javadoc" description="Build API documentation">
+	   <javadoc packagenames="ca.coolman.*,org.bouncycastle.*"
+         sourcepath="src"
+         destdir="docs/api"
+         author="true"
+         version="true"
+         use="true"
+         windowtitle="Vase API">
+         <classpath>
+            <path path="lib/CodenameOne.jar"/>
+         </classpath>
+         <header>&lt;script type="text/javascript"&gt;
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-31012531-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+&lt;/script&gt;</header>
+          <doctitle><![CDATA[<h1>VASE - Value Added SErvices for Codename One</h1>]]></doctitle>
+          <bottom><![CDATA[<i>Copyright &#169; 2012, 1815750 Ontario Inc. All Rights Reserved.</i>]]></bottom>
+          <group title="Vase Packages" packages="ca.coolman.*"/>
+          <group title="Bouncy Castle Packages" packages="org.bouncycastle.*"/>
+          <link href="http://docs.oracle.com/javame/config/cldc/ref-impl/midp2.0/jsr118/"/>
+          <link href="http://codenameone.googlecode.com/svn/trunk/CodenameOne/javadoc/"/>
+       </javadoc>
+    </target>
+	<target name="jar" description="Create a jar for project">
+		<jar jarfile="${dist.jar}" includes="**/*" basedir="bin" />
+	</target>
+	<target name="clean">
+		<delete>
+			<fileset dir="bin" includes="**/*" />
+		</delete> 
+	</target>
+</project>
