@@ -32,7 +32,12 @@ import com.codename1.components.WebBrowser;
 import com.codename1.io.NetworkManager;
 import com.codename1.io.Storage;
 import com.codename1.io.Util;
-import com.codename1.processing.Result;
+import com.codename1.ui.Command;
+import com.codename1.ui.Container;
+import com.codename1.ui.Display;
+import com.codename1.ui.Form;
+import com.codename1.ui.events.ActionEvent;
+import com.codename1.ui.layouts.BorderLayout;
 
 /**
  * The OAuth1 class implements the OAuth flow, as documented here, for example:
@@ -45,75 +50,117 @@ import com.codename1.processing.Result;
  * 
  */
 public class OAuth1 {
-	private final static String URL_AUTHENTICATE = Request.BASEURL
-			+ "authenticate";
-
 	private static Hashtable credentials;
-	private static SigningImplementation _signerImplementation = null;
+	private ServiceProvider serviceProvider;
 	private Signer signer;
 	private String callback;
 
 	public OAuth1(String callback) {
-		if (_signerImplementation == null) {
-			throw new IllegalStateException(
-					"Signer implementation has not been initialized!");
-		}
+		this.callback = callback;
+		Hashtable c = getCredentials();
+		String consumerKey = (String) c.get("key");
+		String consumerSecret = (String) c.get("secret");
+		serviceProvider = (ServiceProvider) c.get("provider");
+		this.signer = new Signer(serviceProvider.getSigner(), consumerKey,
+				consumerSecret);
+	}
+
+	private Hashtable getCredentials() {
 		if (credentials == null) {
 			throw new IllegalStateException(
-				"Consumer credentials has not been initialized!");
+					"Consumer credentials has not been initialized!");
 		}
-		Result result = Result.fromContent(credentials);
-		String appId = callback.replace('/','_');
-		String consumerKey = result.getAsString('/' + appId + "/key");
-		String consumerSecret = result.getAsString('/' + appId + "/secret");
-		if ((consumerKey == null) || (consumerSecret == null)) {
+		String appId = callback.replace('/', '_');
+		Hashtable h = (Hashtable) credentials.get(appId);
+		if (h == null || h.containsKey("key") == false
+				|| h.containsKey("secret") == false) {
 			throw new IllegalStateException(
 					"Consumer credentials has not been initialized for callback!");
 		}
-		this.signer = new Signer(_signerImplementation, consumerKey,
-				consumerSecret);
-		this.callback = callback;
+		if (h.containsKey("provider") == false) {
+			throw new IllegalStateException(
+					"Service provider has not been initialized!");
+		}
+		return h;
 	}
 
 	public void signRequest(SignedService request, AccessToken token) {
 		signer.sign(request, token);
 	}
 
-	public static void register(String callback, final String consumerKey,
-			final String consumerSecret) {
+	public static void register(String callback, ServiceProvider provider,
+			final String consumerKey, final String consumerSecret) {
 		if (credentials == null) {
 			credentials = new Hashtable();
+			Util.register(AccessToken.OBJECT_ID, AccessToken.class);
 		}
 		Hashtable credential = new Hashtable();
 		credential.put("key", consumerKey);
 		credential.put("secret", consumerSecret);
+		credential.put("provider", provider);
 		credentials.put(callback.replace('/', '_'), credential);
-	}
-	
-	public static void initialize(SigningImplementation impl) {
-		_signerImplementation = impl;
-		Util.register(AccessToken.OBJECT_ID, AccessToken.class);
 	}
 
 	public void authenticate() {
+		authenticate(null);
+	}
+
+	public void authenticate(final Form currentForm) {
 		if (onLoadAccessToken() == true) {
 			return;
 		}
-		RequestTokenRequest rtr = new RequestTokenRequest(signer, callback) {
+		final Form backForm = (currentForm == null) ? Display.getInstance()
+				.getCurrent() : currentForm;
+
+		RequestTokenRequest rtr = new RequestTokenRequest(
+				serviceProvider.getRequestTokenUrl(), signer, callback) {
 			public void onAuthenticate(RequestToken requestToken) {
-				final AccessTokenRequest atr = new AccessTokenRequest(signer,
+				final ObservableWebBrowser wb = new ObservableWebBrowser();
+				final AccessTokenRequest atr = new AccessTokenRequest(
+						serviceProvider.getAccessTokenUrl(), signer,
 						requestToken) {
+					/*
+					 * (non-Javadoc)
+					 * 
+					 * @see
+					 * ca.coolman.auth.oauth1.AccessTokenRequest#onAccessTokenca
+					 * .coolman.auth.oauth1.AccessToken)
+					 */
 					public void onAccessToken(AccessToken accessToken) {
 						onReceiveAccessToken(accessToken);
 					}
-				};
 
-				final ObservableWebBrowser wb = new ObservableWebBrowser();
+					/*
+					 * (non-Javadoc)
+					 * 
+					 * @see
+					 * ca.coolman.auth.oauth1.AccessTokenRequest#onDenied(ca
+					 * .coolman.auth.oauth1.RequestToken)
+					 */
+					public void onDenied(RequestToken token) {
+						onDisposeLogin(backForm, wb);
+						super.onDenied(token);
+					}
+
+					/*
+					 * (non-Javadoc)
+					 * 
+					 * @see
+					 * ca.coolman.auth.oauth1.AccessTokenRequest#onVerified(
+					 * ca.coolman.auth.oauth1.RequestToken)
+					 */
+					public void onVerified(RequestToken token) {
+						onDisposeLogin(backForm, wb);
+						super.onVerified(token);
+					}
+
+				};
 				wb.addLoadListener(atr);
-				String url = URL_AUTHENTICATE + "?force_login=true&"
-						+ RequestToken.TOKEN + '=' + requestToken.getToken();
+				String url = serviceProvider.getAuthenticateUrl()
+						+ "?force_login=true&" + RequestToken.TOKEN + '='
+						+ requestToken.getToken();
 				wb.setURL(url);
-				onDisplayLogin(wb);
+				onDisplayLogin(backForm, wb);
 			}
 		};
 		NetworkManager.getInstance().addToQueue(rtr);
@@ -124,8 +171,35 @@ public class OAuth1 {
 	 * 
 	 * @param webBrowser
 	 */
-	public void onDisplayLogin(WebBrowser webBrowser) {
-		// todo: default implementation here
+	public void onDisplayLogin(final Form backForm, final WebBrowser webBrowser) {
+		Form form = new Form("Login");
+		if (backForm != null) {
+			Command cancel = new Command("Cancel") {
+				public void actionPerformed(ActionEvent ev) {
+					backForm.showBack();
+				}
+			};
+			form.addCommand(cancel);
+			form.setBackCommand(cancel);
+		}
+		form.setLayout(new BorderLayout());
+		form.addComponent(BorderLayout.CENTER, webBrowser);
+		form.show();
+	}
+
+	/**
+	 * Handle disposal of the web browser after auth complete
+	 * 
+	 * @param webBrowser
+	 */
+	public void onDisposeLogin(final Form backForm, final WebBrowser webBrowser) {
+		webBrowser.stop();
+		Container parent = webBrowser.getParent();
+		parent.removeComponent(webBrowser);
+		parent.revalidate();
+		if (backForm != null) {
+			backForm.showBack();
+		}
 	}
 
 	/**
@@ -135,8 +209,8 @@ public class OAuth1 {
 	 * @param token
 	 */
 	public void onReceiveAccessToken(AccessToken token) {
-		Storage.getInstance().writeObject("oauth1-" + AccessToken.OBJECT_ID,
-				token);
+		Storage.getInstance().writeObject(serviceProvider.getId(), token);
+		onAccessToken(token);
 	}
 
 	/**
@@ -148,7 +222,7 @@ public class OAuth1 {
 	 */
 	public boolean onLoadAccessToken() {
 		AccessToken token = (AccessToken) Storage.getInstance().readObject(
-				"oauth1-" + AccessToken.OBJECT_ID);
+				serviceProvider.getId());
 		if (token != null) {
 			onAccessToken(token);
 			return true;
