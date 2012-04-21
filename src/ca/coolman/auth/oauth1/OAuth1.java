@@ -234,6 +234,7 @@ public class OAuth1 {
 	 */
 	public void onReceiveAccessToken(AccessToken token) {
 		Storage.getInstance().writeObject(serviceProvider.getId(), token);
+		this.accessToken = token;
 		onAuthenticated();
 	}
 
