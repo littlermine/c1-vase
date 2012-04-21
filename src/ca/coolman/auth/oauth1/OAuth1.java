@@ -54,7 +54,8 @@ public class OAuth1 {
 	private ServiceProvider serviceProvider;
 	private Signer signer;
 	private String callback;
-
+	private AccessToken accessToken;
+	
 	public OAuth1(String callback) {
 		this.callback = callback;
 		Hashtable c = getCredentials();
@@ -65,6 +66,29 @@ public class OAuth1 {
 				consumerSecret);
 	}
 
+	/**
+	 * Return the ID of the authenticated user, or 0L if not authenticated.
+	 * 
+	 * @return user ID, or 0L.
+	 */
+	public long getUserId() {
+		if (accessToken == null) {
+			return 0L;
+		}
+		return accessToken.getId();
+	}
+	
+	/**
+	 * Return the screen name of the authenticated user, or null if not authenticated.
+	 * 
+	 * @return users screen name, or null.
+	 */
+	public String getScreenName() {
+		if (accessToken == null) {
+			return null;
+		}
+		return accessToken.getScreenName();
+	}
 	private Hashtable getCredentials() {
 		if (credentials == null) {
 			throw new IllegalStateException(
@@ -84,8 +108,8 @@ public class OAuth1 {
 		return h;
 	}
 
-	public void signRequest(SignedService request, AccessToken token) {
-		signer.sign(request, token);
+	public void signRequest(SignedService request) {
+		signer.sign(request, accessToken);
 	}
 
 	public static void register(String callback, ServiceProvider provider,
@@ -210,7 +234,7 @@ public class OAuth1 {
 	 */
 	public void onReceiveAccessToken(AccessToken token) {
 		Storage.getInstance().writeObject(serviceProvider.getId(), token);
-		onAccessToken(token);
+		onAuthenticated();
 	}
 
 	/**
@@ -221,10 +245,12 @@ public class OAuth1 {
 	 * @param token
 	 */
 	public boolean onLoadAccessToken() {
-		AccessToken token = (AccessToken) Storage.getInstance().readObject(
+		if (accessToken == null) {
+			accessToken = (AccessToken) Storage.getInstance().readObject(
 				serviceProvider.getId());
-		if (token != null) {
-			onAccessToken(token);
+		}
+		if (accessToken != null) {
+			onAuthenticated();
 			return true;
 		}
 		return false;
@@ -235,9 +261,9 @@ public class OAuth1 {
 	 * 
 	 * @param token
 	 */
-	public void onAccessToken(AccessToken token) {
+	public void onAuthenticated() {
 		System.out
-				.println("User fully authenticated: " + token.getScreenName());
+				.println("User fully authenticated: " + accessToken.getScreenName());
 	}
 
 	/**
