@@ -36,16 +36,15 @@ import com.codename1.io.Util;
  *
  */
 public abstract class RequestTokenRequest extends Request {
-	private final static String API_METHOD = "request_token";
 	private String callback;
 	
 	/**
 	 * 
 	 */
-	public RequestTokenRequest(Signer signer, String callback) {
+	public RequestTokenRequest(String endpoint, Signer signer, String callback) {
 		super(signer);
 		setPost(true);
-		setUrl(BASEURL + API_METHOD);
+		setUrl(endpoint);
 		this.callback = callback;
 		signRequest(new RequestToken(callback));
 	}

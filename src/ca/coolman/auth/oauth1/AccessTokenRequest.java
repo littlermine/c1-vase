@@ -40,18 +40,16 @@ import com.codename1.ui.events.ActionListener;
  *
  */
 public abstract class AccessTokenRequest extends Request implements ActionListener {
-	private final static String API_METHOD = "access_token";
-
 	private RequestToken requestToken;
 
 	/**
 	 * @param consumerSecret
 	 * @param consumerKey
 	 */
-	public AccessTokenRequest(Signer signer, RequestToken requestToken) {
+	public AccessTokenRequest(String endpoint, Signer signer, RequestToken requestToken) {
 		super(signer);
 		this.requestToken = requestToken;
-		setUrl(BASEURL + API_METHOD);
+		setUrl(endpoint);
 		setPost(true);
 	}
 
