@@ -32,9 +32,6 @@ import java.util.Hashtable;
  *
  */
 interface Token {
-	static final String TOKEN = "oauth_token";
-	static final String TOKEN_SECRET = TOKEN + "_secret";
-
 	/**
 	 * @return the token
 	 */

@@ -39,7 +39,7 @@ import com.codename1.io.Log;
  * @author Eric Coolman
  *
  */
-public class Signer {
+class Signer {
 	static final String AUTHORIZATION = "Authorization";
 	static final String CONSUMER_KEY = "oauth_consumer_key";
 	static final String SIGNATURE_METHOD = "oauth_signature_method";
@@ -54,14 +54,14 @@ public class Signer {
 	private String consumerKey;
 	private SigningImplementation signer;
 
-	public Signer(SigningImplementation signer, String consumerKey,
+	Signer(SigningImplementation signer, String consumerKey,
 			String consumerSecret) {
 		this.consumerKey = consumerKey;
 		this.consumerSecret = consumerSecret;
 		this.signer = signer;
 	}
 
-	public void sign(SignedService request, Token token) {
+	void sign(SignedService request, Token token) {
 		Hashtable params = createParameters();
 		token.applyParameters(params);
 		request.applyParameters(params);

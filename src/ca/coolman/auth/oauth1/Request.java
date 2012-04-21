@@ -41,7 +41,7 @@ class Request extends ConnectionRequest implements SignedService {
 	/**
 	 * 
 	 */
-	public Request(Signer signer) {
+	Request(Signer signer) {
 		this.signer = signer;
 	}
 
