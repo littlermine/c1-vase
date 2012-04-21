@@ -24,7 +24,24 @@
  */
 package ca.coolman.social.twitter;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import ca.coolman.util.Comparator;
+import ca.coolman.util.StringComparator;
+
+import com.codename1.processing.Result;
+import com.codename1.ui.events.ActionEvent;
+
 /**
+ * 
+ * For more information on how the paging works, see:
+ * 
+ * https://dev.twitter.com/docs/working-with-timelines
+ * 
  * @author Eric Coolman
  * 
  */
@@ -50,6 +67,9 @@ public class TimelineService extends TwitterService {
 	private final static String ARG_USER_ID = "user_id";
 	private final static String ARG_SCREEN_NAME = "screen_name";
 	private final static int MAX_COUNT = 200;
+
+	private String since_id;
+	private String max_id;
 
 	public TimelineService(String method) {
 		super(METHOD_PREFIX + method, "1", false, true, true);
@@ -90,12 +110,31 @@ public class TimelineService extends TwitterService {
 		addArgument(ARG_COUNT, Integer.toString(count));
 	}
 
-	public void setSinceId(int id) {
-		addArgument(ARG_SINCE_ID, Integer.toString(id));
+	/**
+	 * This method is called by readResponse(), to efficiently handle iterating the
+	 * timeline. See: https://dev.twitter.com/docs/working-with-timelines
+	 * 
+	 * NOTE: Twitter uses 64-bit IDs, so we need to use the id_str property
+	 * instead.
+	 * 
+	 * @param id
+	 */
+	protected void setSinceId(String id) {
+		this.since_id = id;
+		addArgument(ARG_SINCE_ID, id);
 	}
 
-	public void setMaxId(int id) {
-		addArgument(ARG_MAX_ID, Integer.toString(id));
+	/**
+	 * This method is called by fetchMore(), to efficiently handle iterating the
+	 * timeline. See: https://dev.twitter.com/docs/working-with-timelines
+	 * 
+	 * NOTE: Twitter uses 64-bit IDs, so we need to use the id_str property
+	 * instead.
+	 * 
+	 * @param id
+	 */
+	protected void setMaxId(String id) {
+		addArgument(ARG_MAX_ID, id);
 	}
 
 	public void setTrimUser(boolean b) {
@@ -135,5 +174,36 @@ public class TimelineService extends TwitterService {
 			}
 		}
 		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.codename1.io.services.TwitterRESTService#readResponse(java.io.InputStream
+	 * )
+	 */
+	protected void readResponse(InputStream input) throws IOException {
+		Result result = Result.fromContent(input, Result.JSON);
+		Vector tweets = result.getAsArray("/root");
+		if (tweets.size() > 0) {
+			final Comparator cmp = new StringComparator();
+			for (Enumeration e = tweets.elements(); e.hasMoreElements(); ) {
+				Result tweet = Result.fromContent((Hashtable)e.nextElement());
+				String id = tweet.getAsString("id_str");
+				if ((since_id == null) || cmp.compare(id, since_id) > 0) {
+					// this is currently causing twitter to response with no tweets.
+					//setSinceId(id);
+				}
+				if ((max_id == null) || cmp.compare(id, max_id) < 0) {
+					// first glance you'd think max_id/since_id is backwards, but
+					// read the
+					// twitter page noted at the top of this class.
+					setMaxId(id);
+				}
+				
+			}
+			fireResponseListener(new ActionEvent(result));
+		}
 	}
 }
