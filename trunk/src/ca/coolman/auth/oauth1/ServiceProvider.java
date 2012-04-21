@@ -24,63 +24,63 @@
  */
 package ca.coolman.auth.oauth1;
 
-import java.util.Hashtable;
-
-import com.codename1.io.ConnectionRequest;
-import com.codename1.io.Log;
-import com.codename1.io.Util;
-
 /**
- * 
  * @author Eric Coolman
  *
  */
-class Request extends ConnectionRequest implements SignedService {
-	private Signer signer;
-	
+public class ServiceProvider {
+	private String id;
+	private String requestTokenUrl;
+	private String accessTokenUrl;
+	private String authenticateUrl;
+	private SigningImplementation signer;
+
 	/**
-	 * 
+	 * @param id
+	 * @param requestTokenUrl
+	 * @param accessTokenUrl
+	 * @param authenticateUrl
+	 * @param signer
 	 */
-	public Request(Signer signer) {
+	public ServiceProvider(String id, String requestTokenUrl,
+			String accessTokenUrl, String authenticateUrl,
+			SigningImplementation signer) {
+		super();
+		this.id = id;
+		this.requestTokenUrl = requestTokenUrl;
+		this.accessTokenUrl = accessTokenUrl;
+		this.authenticateUrl = authenticateUrl;
 		this.signer = signer;
 	}
 
-	protected void signRequest(Token token) {
-		signer.sign(this, token);
+	/**
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
 	}
-
-	protected Hashtable getUrlParameters(String url) {
-		String query = Util.getURLPath(url);
-		int index = query.indexOf("?");
-		if (index == -1) {
-			return null;
-		}
-		query = query.substring(index + 1);
-		return parseQuery(query);
+	/**
+	 * @return the requestTokenUrl
+	 */
+	public String getRequestTokenUrl() {
+		return requestTokenUrl;
 	}
-
-	protected Hashtable parseQuery(String query) {
-		return parseQuery(query, "&");
+	/**
+	 * @return the accessTokenUrl
+	 */
+	public String getAccessTokenUrl() {
+		return accessTokenUrl;
 	}
-	
-	protected Hashtable parseQuery(String query, String delimiter) {
-		String elements[] = Util.split(query, delimiter);
-		Hashtable response = new Hashtable();
-		for (int i = 0; i < elements.length; i++) {
-			String namevalue[] = Util.split(elements[i], "=");
-			if (namevalue.length == 2) {
-				response.put(namevalue[0], namevalue[1]);
-			} else if (namevalue.length == 1) {
-				response.put(namevalue[0], "");
-			} else {
-				Log.p("Error parsing query " + i + ":" + elements[i]);
-			}
-		}
-		return response;
+	/**
+	 * @return the authenticateUrl
+	 */
+	public String getAuthenticateUrl() {
+		return authenticateUrl;
 	}
-
-	public void applyParameters(Hashtable target) {
-		// oauth requests shouldn't have any parameters.
+	/**
+	 * @return the signer
+	 */
+	public SigningImplementation getSigner() {
+		return signer;
 	}
-
 }
