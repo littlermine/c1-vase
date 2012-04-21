@@ -37,7 +37,9 @@ import com.codename1.io.Externalizable;
  *
  */
 public class AccessToken implements Token, Externalizable {
-	public static final String OBJECT_ID = "access_token";
+	static final String TOKEN = "oauth_token";
+	static final String TOKEN_SECRET = TOKEN + "_secret";
+	static final String OBJECT_ID = "access_token";
 	static final String USER_ID = "user_id";
 	static final String SCREEN_NAME = "screen_name";
 	private String token;
@@ -45,15 +47,20 @@ public class AccessToken implements Token, Externalizable {
 	private long id;
 	private String screenName;
 
+	/**
+	 * INTERNAL - DO NOT USE
+	 * 
+	 * A default constructor as required by Storable/Externalizable.
+	 */
 	public AccessToken() {
 		this(null, null, -1, null);
 	}
 
 	/**
-	 * @param token
-	 * @param secret
-	 * @param id
-	 * @param screenName
+	 * @param token string value of users access token
+	 * @param secret string value of users access token secret - do not disclose
+	 * @param id - authorizing user's ID
+	 * @param screenName - authorizing users screen name
 	 */
 	AccessToken(String token, String secret, long id, String screenName) {
 		super();

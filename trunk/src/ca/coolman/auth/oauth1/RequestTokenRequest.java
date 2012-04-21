@@ -35,13 +35,13 @@ import com.codename1.io.Util;
  * @author Eric Coolman
  *
  */
-public abstract class RequestTokenRequest extends Request {
+abstract class RequestTokenRequest extends Request {
 	private String callback;
 	
 	/**
 	 * 
 	 */
-	public RequestTokenRequest(String endpoint, Signer signer, String callback) {
+	RequestTokenRequest(String endpoint, Signer signer, String callback) {
 		super(signer);
 		setPost(true);
 		setUrl(endpoint);

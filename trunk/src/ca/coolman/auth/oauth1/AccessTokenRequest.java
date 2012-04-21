@@ -39,14 +39,14 @@ import com.codename1.ui.events.ActionListener;
  * @author Eric Coolman
  *
  */
-public abstract class AccessTokenRequest extends Request implements ActionListener {
+abstract class AccessTokenRequest extends Request implements ActionListener {
 	private RequestToken requestToken;
 
 	/**
 	 * @param consumerSecret
 	 * @param consumerKey
 	 */
-	public AccessTokenRequest(String endpoint, Signer signer, RequestToken requestToken) {
+	AccessTokenRequest(String endpoint, Signer signer, RequestToken requestToken) {
 		super(signer);
 		this.requestToken = requestToken;
 		setUrl(endpoint);
@@ -67,13 +67,13 @@ public abstract class AccessTokenRequest extends Request implements ActionListen
 		}
 	}
 
-	public void onDenied(RequestToken token) {
+	void onDenied(RequestToken token) {
 		Log.p("Denied", Log.DEBUG);
 		// user triggered, so by default do nothing, just continue with limited
 		// privileges. Override this to handle otherwise.
 	}
 
-	public void onVerified(RequestToken token) {
+	void onVerified(RequestToken token) {
 		Log.p("Verified: " + token.getVerifier(), Log.DEBUG);
 		signRequest(token);
 		NetworkManager.getInstance().addToQueue(this);
@@ -88,5 +88,5 @@ public abstract class AccessTokenRequest extends Request implements ActionListen
 		onAccessToken(token);
 	}
 
-	public abstract void onAccessToken(AccessToken token);
+	abstract void onAccessToken(AccessToken token);
 }

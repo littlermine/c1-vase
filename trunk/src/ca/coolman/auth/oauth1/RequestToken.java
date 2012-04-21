@@ -31,7 +31,9 @@ import java.util.Hashtable;
  * @author Eric Coolman
  *
  */
-public class RequestToken implements Token {
+class RequestToken implements Token {
+	static final String TOKEN = "oauth_token";
+	static final String TOKEN_SECRET = TOKEN + "_secret";
 	static final String CALLBACK = "oauth_callback";
 	static final String CALLBACK_CONFIRMED = CALLBACK + "_confirmed";
 	static final String VERIFIER = "oauth_verifier";
@@ -43,7 +45,7 @@ public class RequestToken implements Token {
 	private boolean denied;
 	private String verifier;
 
-	public RequestToken(String callback) {
+	RequestToken(String callback) {
 		this("","",callback,false);
 	}
 
@@ -52,7 +54,7 @@ public class RequestToken implements Token {
 	 * @param secret
 	 * @param callback
 	 */
-	public RequestToken(String token, String secret, String callback,
+	RequestToken(String token, String secret, String callback,
 			boolean callbackVerified) {
 		super();
 		this.token = token;
@@ -72,13 +74,13 @@ public class RequestToken implements Token {
 	/**
 	 * @return the verifier
 	 */
-	public String getVerifier() {
+	String getVerifier() {
 		return verifier;
 	}
 	/**
 	 * @param verifier the verifier to set
 	 */
-	public void setVerifier(String verifier) {
+	void setVerifier(String verifier) {
 		this.verifier = verifier;
 	}
 	/*
@@ -100,13 +102,13 @@ public class RequestToken implements Token {
 	/**
 	 * @return the callback
 	 */
-	public String getCallback() {
+	String getCallback() {
 		return callback;
 	}
 	/**
 	 * @return the callbackVerified
 	 */
-	public boolean isCallbackVerified() {
+	boolean isCallbackVerified() {
 		return callbackVerified;
 	}
 
@@ -127,7 +129,7 @@ public class RequestToken implements Token {
 	/**
 	 * @return the denied
 	 */
-	public boolean isDenied() {
+	boolean isDenied() {
 		return denied;
 	}
 
