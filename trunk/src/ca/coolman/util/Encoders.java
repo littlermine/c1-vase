@@ -88,10 +88,22 @@ public class Encoders {
 	 * Convert a string to a percent encoded string as defined in RFC 3986. See
 	 * http://www.ietf.org/rfc/rfc3986.txt
 	 * 
-	 * @param src
-	 * @return
+	 * @param src plaintext string
+	 * @return encoded string
 	 */
 	public static String encodeRFC3986(String src) {
 		return Util.encodeUrl(src);
+	}
+
+	/**
+	 * Convert a string from a percent encoded string as defined in RFC 3986. See
+	 * http://www.ietf.org/rfc/rfc3986.txt
+	 * 
+	 * @param src encoded string
+	 * @return decoded string
+	 */
+	public static String decodeRFC3986(String src) {
+	// return Util.decode(src, null, true);
+		return null;
 	}
 }
