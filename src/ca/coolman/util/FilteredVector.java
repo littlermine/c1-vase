@@ -36,9 +36,9 @@ import java.util.Vector;
  */
 public class FilteredVector extends Vector {
 	/**
-	 * The comparator used for filtering the list
+	 * The filter used for filtering the list
 	 */
-	private Comparator comparator;
+	private Filter filter;
 	/**
 	 * The source vector to be filtered
 	 */
@@ -47,23 +47,17 @@ public class FilteredVector extends Vector {
 	 * The indexes of each source element that matches the filter
 	 */
 	private Vector indexes;
-	/**
-	 * The filter value to be applied against the source using the comparator.
-	 * Typically the filter would be a string.
-	 */
-	private Object filter;
 
 	/**
 	 * Construct a FilteredVector with a given comparator
 	 * 
-	 * @param comparator a comparator for filtering value
-	 * @see StringComparator
-	 * @see NumberComparator
-	 * @see S
+	 * @param f a comparator for filtering value
+	 * @see ComparatorFilter
+	 * @see Filter
 	 */
-	public FilteredVector(Comparator comparator) {
+	public FilteredVector(Filter f) {
 		source = this;
-		this.comparator = comparator;
+		this.filter = f;
 	}
 
 	/**
@@ -71,13 +65,13 @@ public class FilteredVector extends Vector {
 	 * comparator. The source vector will be sorted on construction.
 	 * 
 	 * @param src a source vector.
-	 * @param c comparator implementation for sorting elements on insertion.
-	 * @see StringComparator
-	 * @see NumberComparator
+	 * @param f filter implementation for filtering elements on insertion.
+	 * @see ComparatorFilter
+	 * @see Filter
 	 */
-	public FilteredVector(Vector src, Comparator comparator) {
-		this.comparator = comparator;
+	public FilteredVector(Vector src, Filter f) {
 		this.source = src;
+		this.filter(f);
 	}
 
 	/**
@@ -85,12 +79,12 @@ public class FilteredVector extends Vector {
 	 * comparator. The source vector will be sorted on construction.
 	 * 
 	 * @param src a source vector.
-	 * @param c comparator implementation for sorting elements on insertion.
-	 * @see StringComparator
-	 * @see NumberComparator
+	 * @param f filter implementation for filtering elements on insertion.
+	 * @see ComparatorFilter
+	 * @see Filter
 	 */
-	public FilteredVector(Object src[], Comparator comparator) {
-		this(comparator);
+	public FilteredVector(Object src[], Filter f) {
+		this(f);
 		if (src != null) {
 			for (int i = 0; i < src.length; i++) {
 				addElement(src[i]);
@@ -105,17 +99,17 @@ public class FilteredVector extends Vector {
 	 * When null is passed, this vector will behave the same as if we were
 	 * operating against the source vector.
 	 * 
-	 * @param filter filter value to be applied against source vector.
+	 * @param f filter to be applied against source vector.
 	 */
-	public void filter(Object filter) {
+	public void filter(Filter f) {
 		indexes = null;
-		if (filter == null) {
+		if (f == null) {
 			return;
 		}
+		this.filter = f;
 		Vector tmp = new Vector();
 		for (int i = 0; i < source.size(); i++) {
-			System.err.println(source.elementAt(i) + " vs " + filter + ": " + comparator.compare(source.elementAt(i), filter));
-			if (comparator.compare(source.elementAt(i), filter) == 0) {
+			if (f.matches(source.elementAt(i))) {
 				tmp.addElement(new Integer(i));
 			}
 		}
@@ -170,7 +164,7 @@ public class FilteredVector extends Vector {
 		// push the element to the source vector, and if it passes the
 		// filter, also add it to the filter index
 		if (indexes != null) {
-			if (comparator.compare(obj, filter) == 0) {
+			if (filter.matches(obj)) {
 				int size;
 				if (source == this) {
 					size = super.size();
@@ -349,7 +343,7 @@ public class FilteredVector extends Vector {
 		// push the element to the source, and if it matches the filter,
 		// then add it to the filter index too.
 		if (indexes != null) {
-			if (comparator.compare(obj, filter) == 0) {
+			if (filter.matches(obj)) {
 				int size;
 				if (source == this) {
 					size = super.size();
@@ -523,7 +517,7 @@ public class FilteredVector extends Vector {
 		// from the filter index.
 		if (indexes != null) {
 			int index = ((Integer) indexes.elementAt(at)).intValue();
-			if (comparator.compare(obj, filter) != 0) {
+			if (filter.matches(obj) == false) {
 				indexes.removeElementAt(index);
 			}
 			at = index;
