@@ -26,13 +26,14 @@ package ca.coolman.auth.oauth1;
 
 /**
  * @author Eric Coolman
- *
+ * 
  */
 public class ServiceProvider {
 	private String id;
 	private String requestTokenUrl;
 	private String accessTokenUrl;
 	private String authenticateUrl;
+	private String authorizeUrl;
 	private SigningImplementation signer;
 
 	/**
@@ -43,13 +44,14 @@ public class ServiceProvider {
 	 * @param signer
 	 */
 	public ServiceProvider(String id, String requestTokenUrl,
-			String accessTokenUrl, String authenticateUrl,
+			String accessTokenUrl, String authenticateUrl, String authorizeUrl,
 			SigningImplementation signer) {
 		super();
 		this.id = id;
 		this.requestTokenUrl = requestTokenUrl;
 		this.accessTokenUrl = accessTokenUrl;
 		this.authenticateUrl = authenticateUrl;
+		this.authorizeUrl = authorizeUrl;
 		this.signer = signer;
 	}
 
@@ -71,12 +73,23 @@ public class ServiceProvider {
 	public String getAccessTokenUrl() {
 		return accessTokenUrl;
 	}
+	
 	/**
 	 * @return the authenticateUrl
 	 */
-	public String getAuthenticateUrl() {
-		return authenticateUrl;
+	public String getAuthenticateUrl(RequestToken requestToken) {
+		return authenticateUrl + '?' + RequestToken.TOKEN + '='
+				+ requestToken.getToken();
 	}
+	
+	/**
+	 * @return the authenticateUrl
+	 */
+	public String getAuthorizeUrl(RequestToken requestToken) {
+		return authorizeUrl + '?' + RequestToken.TOKEN + '='
+				+ requestToken.getToken();
+	}
+
 	/**
 	 * @return the signer
 	 */
