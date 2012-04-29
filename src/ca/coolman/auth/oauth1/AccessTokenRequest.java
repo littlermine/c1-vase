@@ -26,7 +26,9 @@ package ca.coolman.auth.oauth1;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import com.codename1.io.Log;
 import com.codename1.io.NetworkManager;
@@ -39,17 +41,21 @@ import com.codename1.ui.events.ActionListener;
  * @author Eric Coolman
  *
  */
-abstract class AccessTokenRequest extends Request implements ActionListener {
+class AccessTokenRequest extends Request implements ActionListener {
 	private RequestToken requestToken;
-
+	private AccessToken accessToken;
+	private Vector receiveListeners = new Vector();
+	private Vector verifiedListeners = new Vector();
+	private Vector deniedListeners = new Vector();
+		
 	/**
 	 * @param consumerSecret
 	 * @param consumerKey
 	 */
-	AccessTokenRequest(String endpoint, Signer signer, RequestToken requestToken) {
+	AccessTokenRequest(ServiceProvider provider, Signer signer, RequestToken requestToken) {
 		super(signer);
 		this.requestToken = requestToken;
-		setUrl(endpoint);
+		setUrl(provider.getAccessTokenUrl());
 		setPost(true);
 	}
 
@@ -71,12 +77,18 @@ abstract class AccessTokenRequest extends Request implements ActionListener {
 		Log.p("Denied", Log.DEBUG);
 		// user triggered, so by default do nothing, just continue with limited
 		// privileges. Override this to handle otherwise.
+		for (Enumeration e = deniedListeners.elements(); e.hasMoreElements(); ) {
+			((ActionListener)e.nextElement()).actionPerformed(new ActionEvent(token));
+		}
 	}
 
 	void onVerified(RequestToken token) {
 		Log.p("Verified: " + token.getVerifier(), Log.DEBUG);
+		for (Enumeration e = verifiedListeners.elements(); e.hasMoreElements(); ) {
+			((ActionListener)e.nextElement()).actionPerformed(new ActionEvent(token));
+		}
 		signRequest(token);
-		NetworkManager.getInstance().addToQueue(this);
+		NetworkManager.getInstance().addToQueueAndWait(this);
 	}
 
 	protected void readResponse(InputStream input) throws IOException {
@@ -85,8 +97,33 @@ abstract class AccessTokenRequest extends Request implements ActionListener {
 		Hashtable response = parseQuery(new String(b));
 		AccessToken token = new AccessToken();
 		token.read(response);
-		onAccessToken(token);
+		onReceiveAccessToken(token);
 	}
 
-	abstract void onAccessToken(AccessToken token);
+	public void onReceiveAccessToken(AccessToken token) {
+		this.accessToken = token;
+		for (Enumeration e = receiveListeners.elements(); e.hasMoreElements(); ) {
+			((ActionListener)e.nextElement()).actionPerformed(new ActionEvent(accessToken));
+		}
+	}
+
+	/**
+	 * @return the accessToken
+	 */
+	public AccessToken getAccessToken() {
+		return accessToken;
+	}
+
+	public void addReceiveTokenListener(ActionListener l) {
+		receiveListeners.addElement(l);
+	}
+
+	public void addVerifiedListener(ActionListener l) {
+		verifiedListeners.addElement(l);
+	}
+	
+	public void addDeniedListener(ActionListener l) {
+		deniedListeners.addElement(l);
+	}
+
 }
