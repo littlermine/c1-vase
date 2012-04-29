@@ -29,6 +29,7 @@ import java.util.Hashtable;
 import ca.coolman.components.ObservableWebBrowser;
 
 import com.codename1.components.WebBrowser;
+import com.codename1.io.Log;
 import com.codename1.io.NetworkManager;
 import com.codename1.io.Storage;
 import com.codename1.io.Util;
@@ -37,6 +38,8 @@ import com.codename1.ui.Container;
 import com.codename1.ui.Display;
 import com.codename1.ui.Form;
 import com.codename1.ui.events.ActionEvent;
+import com.codename1.ui.events.ActionListener;
+import com.codename1.ui.html.DocumentInfo;
 import com.codename1.ui.layouts.BorderLayout;
 
 /**
@@ -55,15 +58,14 @@ public class OAuth1 {
 	private Signer signer;
 	private String callback;
 	private AccessToken accessToken;
-	
+
 	public OAuth1(String callback) {
 		this.callback = callback;
 		Hashtable c = getCredentials();
 		String consumerKey = (String) c.get("key");
 		String consumerSecret = (String) c.get("secret");
 		serviceProvider = (ServiceProvider) c.get("provider");
-		this.signer = new Signer(serviceProvider.getSigner(), consumerKey,
-				consumerSecret);
+		this.signer = new Signer(serviceProvider.getSigner(), consumerKey, consumerSecret);
 	}
 
 	/**
@@ -77,9 +79,10 @@ public class OAuth1 {
 		}
 		return accessToken.getId();
 	}
-	
+
 	/**
-	 * Return the screen name of the authenticated user, or null if not authenticated.
+	 * Return the screen name of the authenticated user, or null if not
+	 * authenticated.
 	 * 
 	 * @return users screen name, or null.
 	 */
@@ -91,19 +94,15 @@ public class OAuth1 {
 	}
 	private Hashtable getCredentials() {
 		if (credentials == null) {
-			throw new IllegalStateException(
-					"Consumer credentials has not been initialized!");
+			throw new IllegalStateException("Consumer credentials has not been initialized!");
 		}
 		String appId = callback.replace('/', '_');
 		Hashtable h = (Hashtable) credentials.get(appId);
-		if (h == null || h.containsKey("key") == false
-				|| h.containsKey("secret") == false) {
-			throw new IllegalStateException(
-					"Consumer credentials has not been initialized for callback!");
+		if (h == null || h.containsKey("key") == false || h.containsKey("secret") == false) {
+			throw new IllegalStateException("Consumer credentials has not been initialized for callback!");
 		}
 		if (h.containsKey("provider") == false) {
-			throw new IllegalStateException(
-					"Service provider has not been initialized!");
+			throw new IllegalStateException("Service provider has not been initialized!");
 		}
 		return h;
 	}
@@ -112,11 +111,15 @@ public class OAuth1 {
 		signer.sign(request, accessToken);
 	}
 
-	public static void register(String callback, ServiceProvider provider,
-			final String consumerKey, final String consumerSecret) {
+	public static void register(String callback, ServiceProvider provider, final String consumerKey,
+			final String consumerSecret) {
 		if (credentials == null) {
 			credentials = new Hashtable();
+			// Initialize serialization
 			Util.register(AccessToken.OBJECT_ID, AccessToken.class);
+			// Initialize the HTMLComponent browser with defaults
+			NetworkManager.getInstance().addDefaultHeader("Accept-Language", "en-us");
+			DocumentInfo.setDefaultEncoding("UTF-8");
 		}
 		Hashtable credential = new Hashtable();
 		credential.put("key", consumerKey);
@@ -133,61 +136,39 @@ public class OAuth1 {
 		if (onLoadAccessToken() == true) {
 			return;
 		}
-		final Form backForm = (currentForm == null) ? Display.getInstance()
-				.getCurrent() : currentForm;
+		final Form backForm = (currentForm == null) ? Display.getInstance().getCurrent() : currentForm;
 
-		RequestTokenRequest rtr = new RequestTokenRequest(
-				serviceProvider.getRequestTokenUrl(), signer, callback) {
-			public void onAuthenticate(RequestToken requestToken) {
-				final ObservableWebBrowser wb = new ObservableWebBrowser();
-				final AccessTokenRequest atr = new AccessTokenRequest(
-						serviceProvider.getAccessTokenUrl(), signer,
-						requestToken) {
-					/*
-					 * (non-Javadoc)
-					 * 
-					 * @see
-					 * ca.coolman.auth.oauth1.AccessTokenRequest#onAccessTokenca
-					 * .coolman.auth.oauth1.AccessToken)
-					 */
-					public void onAccessToken(AccessToken accessToken) {
-						onReceiveAccessToken(accessToken);
-					}
-
-					/*
-					 * (non-Javadoc)
-					 * 
-					 * @see
-					 * ca.coolman.auth.oauth1.AccessTokenRequest#onDenied(ca
-					 * .coolman.auth.oauth1.RequestToken)
-					 */
-					public void onDenied(RequestToken token) {
-						onDisposeLogin(backForm, wb);
-						super.onDenied(token);
-					}
-
-					/*
-					 * (non-Javadoc)
-					 * 
-					 * @see
-					 * ca.coolman.auth.oauth1.AccessTokenRequest#onVerified(
-					 * ca.coolman.auth.oauth1.RequestToken)
-					 */
-					public void onVerified(RequestToken token) {
-						onDisposeLogin(backForm, wb);
-						super.onVerified(token);
-					}
-
-				};
-				wb.addLoadListener(atr);
-				String url = serviceProvider.getAuthenticateUrl()
-						+ "?force_login=true&" + RequestToken.TOKEN + '='
-						+ requestToken.getToken();
-				wb.setURL(url);
-				onDisplayLogin(backForm, wb);
+		RequestTokenRequest rtr = new RequestTokenRequest(serviceProvider, signer, callback);
+		// Retrieve (and wait) for the request token
+		NetworkManager.getInstance().addToQueueAndWait(rtr);
+		RequestToken requestToken = rtr.getToken();
+		
+		// Use the request token to retrieve an access token for the authorizing user.
+		final ObservableWebBrowser wb = new ObservableWebBrowser();
+		AccessTokenRequest atr = new AccessTokenRequest(serviceProvider, signer, requestToken);
+		atr.addReceiveTokenListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				Log.p("onAccessToken()", Log.DEBUG);
+				onReceiveAccessToken(accessToken);
+				onSaveAccessToken(accessToken);
+				onAuthenticated();
 			}
-		};
-		NetworkManager.getInstance().addToQueue(rtr);
+		});
+		atr.addDeniedListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				onDisposeLogin(backForm, wb);
+			}
+		});
+
+		atr.addVerifiedListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				onDisposeLogin(backForm, wb);
+			}
+		});
+		wb.addLoadListener(atr);
+		String url = serviceProvider.getAuthenticateUrl(requestToken);
+		wb.setURL(url);
+		onDisplayLogin(backForm, wb);
 	}
 
 	/**
@@ -228,14 +209,22 @@ public class OAuth1 {
 
 	/**
 	 * Handle a newly received access token, use this to handle one-time
-	 * operations such as persistence, etc.
+	 * operations, not including persistence (see onSaveAccessToken()).
 	 * 
 	 * @param token
 	 */
 	public void onReceiveAccessToken(AccessToken token) {
-		Storage.getInstance().writeObject(serviceProvider.getId(), token);
 		this.accessToken = token;
-		onAuthenticated();
+	}
+
+	/**
+	 * Handle a newly received access token, use this to handle one-time
+	 * operations such as persistence, etc.
+	 * 
+	 * @param token
+	 */
+	public void onSaveAccessToken(AccessToken token) {
+		Storage.getInstance().writeObject(serviceProvider.getId(), token);
 	}
 
 	/**
@@ -247,8 +236,7 @@ public class OAuth1 {
 	 */
 	public boolean onLoadAccessToken() {
 		if (accessToken == null) {
-			accessToken = (AccessToken) Storage.getInstance().readObject(
-				serviceProvider.getId());
+			accessToken = (AccessToken) Storage.getInstance().readObject(serviceProvider.getId());
 		}
 		if (accessToken != null) {
 			onAuthenticated();
@@ -263,13 +251,22 @@ public class OAuth1 {
 	 * @param token
 	 */
 	public void onAuthenticated() {
-		System.out
-				.println("User fully authenticated: " + accessToken.getScreenName());
+		System.out.println("User fully authenticated: " + accessToken.getScreenName());
 	}
 
 	/**
 	 * User denied, continue with limited access.
 	 */
 	public void onDeniedAccess() {
+	}
+
+	/**
+	 * Retrieve the current authenticated access token. This method should not
+	 * be called unless you previously handle onAuthenticated().
+	 * 
+	 * @return
+	 */
+	public AccessToken getAccessToken() {
+		return accessToken;
 	}
 }
