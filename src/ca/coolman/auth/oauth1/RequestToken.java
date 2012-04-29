@@ -31,7 +31,7 @@ import java.util.Hashtable;
  * @author Eric Coolman
  *
  */
-class RequestToken implements Token {
+public class RequestToken implements Token {
 	static final String TOKEN = "oauth_token";
 	static final String TOKEN_SECRET = TOKEN + "_secret";
 	static final String CALLBACK = "oauth_callback";
