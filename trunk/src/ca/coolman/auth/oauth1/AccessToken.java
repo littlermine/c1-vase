@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 import com.codename1.io.Externalizable;
+import com.codename1.io.Util;
 
 /**
  * 
@@ -126,5 +127,9 @@ public class AccessToken implements Token, Externalizable {
 		this.secret = (String) h.get(TOKEN_SECRET);
 		this.id = Long.parseLong((String) h.get(USER_ID));
 		this.screenName = (String) h.get(SCREEN_NAME);
+	}
+
+	public static void initStorage() {
+		Util.register(AccessToken.OBJECT_ID, AccessToken.class); 		
 	}
 }
