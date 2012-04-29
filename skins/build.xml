@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="vase-skins" basedir="." default="skins">
+	<target name="skins" depends="e71-skin">
+	</target>
+	
+	<target name="e71-skin">
+		<zip destfile="NokiaE71.skin" basedir="NokiaE71"
+			includes="**/*.png,**/*.ttf,**/skin.properties,**/*.res" />
+	</target>
+</project>
+  
