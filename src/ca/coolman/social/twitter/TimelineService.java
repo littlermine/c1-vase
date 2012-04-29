@@ -40,7 +40,8 @@ import com.codename1.ui.events.ActionEvent;
  * 
  * For more information on how the paging works, see:
  * 
- * https://dev.twitter.com/docs/working-with-timelines
+ * http://dev.twitter.com/docs/working-with-timelines
+ * http://dev.twitter.com/docs/api#timelines
  * 
  * @author Eric Coolman
  * 
@@ -75,10 +76,10 @@ public class TimelineService extends TwitterService {
 		super(METHOD_PREFIX + method, "1", false, true, true);
 	}
 
-	public void setUserId(int id) {
+	public void setUserId(String id) {
 		String applicableMethods[] = {USER_TIMELINE};
 		if (shouldAddArgument(applicableMethods)) {
-			addArgument(ARG_USER_ID, Integer.toString(id));
+			addArgument(ARG_USER_ID, id);
 		}
 	}
 
