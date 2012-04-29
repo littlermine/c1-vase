@@ -91,6 +91,15 @@ public class FilteredVector extends Vector {
 			}
 		}
 	}
+	
+	/**
+	 * Get the current filter.
+	 * 
+	 * @return the current filter.
+	 */
+	public Filter getFilter() {
+		return this.filter;
+	}
 
 	/**
 	 * Apply a filter against the source vector, or clear the filter by passing
@@ -107,9 +116,17 @@ public class FilteredVector extends Vector {
 			return;
 		}
 		this.filter = f;
+		refresh();
+	}
+
+	/**
+	 * Re-apply the filter against the model.  This is used when the
+	 * internal model or filter is changed externally.
+	 */
+	public void refresh() {
 		Vector tmp = new Vector();
 		for (int i = 0; i < source.size(); i++) {
-			if (f.matches(source.elementAt(i))) {
+			if (filter.matches(source.elementAt(i))) {
 				tmp.addElement(new Integer(i));
 			}
 		}
