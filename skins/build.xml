@@ -1,11 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="vase-skins" basedir="." default="skins">
-	<target name="skins" depends="e71-skin">
+	<target name="skins" depends="e71-skin,galaxy-nexus-skin,bold-9790-skin,mid7012-skin">
 	</target>
 	
 	<target name="e71-skin">
 		<zip destfile="NokiaE71.skin" basedir="NokiaE71"
 			includes="**/*.png,**/*.ttf,**/skin.properties,**/*.res" />
+	</target>
+	<target name="galaxy-nexus-skin">
+		<zip destfile="SamsungGalaxyNexus.skin">
+		    <fileset dir="SamsungGalaxyNexus" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
+		    <fileset dir="shared/and/4" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
+		    <fileset dir="shared/and" includes="*.ttf,*.res"/>
+		  </zip>
+	</target>
+	<target name="bold-9790-skin">
+		<zip destfile="BlackberryBold9790.skin">
+		    <fileset dir="BlackberryBold9790" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
+		    <fileset dir="shared/rim" includes="*.ttf,*.res"/>
+		  </zip>
+	</target>
+	<target name="mid7012-skin">
+		<zip destfile="CobyMID7012.skin">
+		    <fileset dir="CobyMID7012" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
+		    <fileset dir="shared/and/2" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
+		    <fileset dir="shared/and" includes="*.ttf,*.res"/>
+		  </zip>
 	</target>
 </project>
   
