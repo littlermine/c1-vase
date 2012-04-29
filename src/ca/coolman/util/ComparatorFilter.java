@@ -60,4 +60,22 @@ public class ComparatorFilter implements Filter {
 		}
 		return comparator.compare(lvalue, subject) == 0;
 	}
+	
+	/**
+	 * Set the subject (lvalue) used in comparison.
+	 * 
+	 * @param subject
+	 */
+	public void setSubject(Object subject) {
+		this.lvalue = subject;
+	}
+
+	/**
+	 * Get the subject (lvalue) used in comparison.
+	 * 
+	 * @return
+	 */
+	public Object getSubject() {
+		return this.lvalue;
+	}
 }
