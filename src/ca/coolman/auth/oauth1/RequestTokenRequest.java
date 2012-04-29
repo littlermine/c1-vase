@@ -33,30 +33,56 @@ import com.codename1.io.Util;
 /**
  * 
  * @author Eric Coolman
- *
+ * 
  */
-abstract class RequestTokenRequest extends Request {
+class RequestTokenRequest extends Request {
 	private String callback;
-	
+	private RequestToken token;
+
 	/**
 	 * 
 	 */
-	RequestTokenRequest(String endpoint, Signer signer, String callback) {
+	RequestTokenRequest(ServiceProvider provider, Signer signer, String callback) {
 		super(signer);
 		setPost(true);
-		setUrl(endpoint);
+		setUrl(provider.getRequestTokenUrl());
 		this.callback = callback;
 		signRequest(new RequestToken(callback));
 	}
 
 	protected void readResponse(InputStream input) throws IOException {
-		byte b[] = new byte[getContentLength()];
-		Util.readAll(input, b);
-		Hashtable response = parseQuery(new String(b));
+		int i = getContentLength();
+		if (i < 0) {
+			// TODO: 8k is prob excessive for a request token.
+			i = 8192;
+		}
+		byte b[] = new byte[i];
+		i = Util.readAll(input, b);
+		String s = new String(b, 0, i);
+		Hashtable response = parseQuery(s);
 		RequestToken token = new RequestToken(callback);
 		token.read(response);
-		onAuthenticate(token);
+		onReceiveRequestToken(token);
 	}
 
-	public abstract void onAuthenticate(RequestToken token);
+	/**
+	 * Handle receiving the request token.
+	 * 
+	 * @param token
+	 */
+	public void onReceiveRequestToken(RequestToken token) {
+		this.token = token;
+	}
+
+	/**
+	 * Get the retrieved request token.
+	 * 
+	 * NOTE: The result of calling this method will be volatile request is made
+	 * asynchronously!
+	 * 
+	 * @return the token
+	 */
+	public RequestToken getToken() {
+		return token;
+	}
 }
