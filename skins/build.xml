@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="vase-skins" basedir="." default="skins">
-	<target name="skins" depends="e71-skin,galaxy-nexus-skin,bold-9790-skin,mid7012-skin">
+	<target name="skins" depends="e71-skin,galaxy-nexus-skin,bold-9790-skin,mid7012-skin,nokia-2760-skin">
 	</target>
 	
 	<target name="e71-skin">
@@ -25,6 +25,12 @@
 		    <fileset dir="CobyMID7012" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
 		    <fileset dir="shared/and/2" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
 		    <fileset dir="shared/and" includes="*.ttf,*.res"/>
+		  </zip>
+	</target>
+	<target name="nokia-2760-skin">
+		<zip destfile="Nokia2760.skin">
+		    <fileset dir="Nokia2760" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
+		    <fileset dir="shared/me" includes="*.ttf,*.res"/>
 		  </zip>
 	</target>
 </project>
