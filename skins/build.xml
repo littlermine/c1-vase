@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="vase-skins" basedir="." default="skins">
-	<target name="skins" depends="e71-skin,galaxy-nexus-skin,nokia-2760-skin,viewty-skin">
-	<!-- bold-9790-skin,mid7012-skin, -->
+	<target name="skins" depends="e71-skin,galaxy-nexus-skin,nokia-2760-skin,viewty-skin,dext-skin">
+	<!-- bold-9790-skin,mid7012-skin,samsung-sgh-a747-skin,nexus-s-skin -->
 	</target>
 	
 	<target name="e71-skin">
@@ -12,6 +12,20 @@
 		<zip destfile="SamsungGalaxyNexus.skin">
 		    <fileset dir="SamsungGalaxyNexus" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
 		    <fileset dir="shared/and/4" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
+		    <fileset dir="shared/and" includes="*.ttf,*.res"/>
+		  </zip>
+	</target>
+	<target name="nexus-s-skin">
+		<zip destfile="SamsungNexusS.skin">
+		    <fileset dir="SamsungNexusS" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
+		    <fileset dir="shared/and/2" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
+		    <fileset dir="shared/and" includes="*.ttf,*.res"/>
+		  </zip>
+	</target>
+	<target name="dext-skin">
+		<zip destfile="MotorolaDextCliq.skin">
+		    <fileset dir="MotorolaDextCliq" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
+		    <fileset dir="shared/and/2" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
 		    <fileset dir="shared/and" includes="*.ttf,*.res"/>
 		  </zip>
 	</target>
@@ -37,6 +51,12 @@
 	<target name="viewty-skin">
 		<zip destfile="LGViewtyKU990.skin">
 		    <fileset dir="LG-Viewty-KU990" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
+		    <fileset dir="shared/me" includes="*.ttf,*.res"/>
+		  </zip>
+	</target>
+	<target name="samsung-sgh-a747-skin">
+		<zip destfile="Samsung-SGH-A747-skin.skin">
+		    <fileset dir="Samsung-SGH-A747" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
 		    <fileset dir="shared/me" includes="*.ttf,*.res"/>
 		  </zip>
 	</target>
