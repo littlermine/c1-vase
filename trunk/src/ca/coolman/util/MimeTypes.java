@@ -95,10 +95,12 @@ public class MimeTypes {
 	 *         extensions associacted to it.
 	 */
 	protected String[] getTokens(String in) {
+		// document uses tabs to organize text into columns
 		String line = in.replace('\t', ' ');
 		String tokens[] = Util.split(line, " ");
 		Vector vector = new Vector();
 		for (int i = 0; i < tokens.length; i++) {
+			// There will be empty tokens from the columnar data (multiple tabs)
 			String token = tokens[i].trim();
 			if (token.length() > 0) {
 				vector.addElement(token);
@@ -119,14 +121,15 @@ public class MimeTypes {
 		String line;
 		try {
 			while ((line = reader.readLine()) != null) {
+				// ignore comment lines
 				if (line.startsWith("#")) {
 					continue;
 				}
 				String tokens[] = getTokens(line);
+				// first token is mime-type, followed by file extensions
 				if (tokens.length > 1) {
 					for (int i = 1; i < tokens.length; i++) {
 						map.put(tokens[i], tokens[0]);
-						System.err.println("tokens[" + i + "] - [" + tokens[i] + "]=[" + tokens[0] + "]");
 					}
 				}
 			}
