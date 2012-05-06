@@ -149,9 +149,11 @@ public class OAuth1 {
 		atr.addReceiveTokenListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				Log.p("onAccessToken()", Log.DEBUG);
-				onReceiveAccessToken(accessToken);
-				onSaveAccessToken(accessToken);
+				AccessToken at = (AccessToken)evt.getSource();
+				onReceiveAccessToken(at);
+				onSaveAccessToken(at);
 				onAuthenticated();
+				onDisposeLogin(backForm, wb);
 			}
 		});
 		atr.addDeniedListener(new ActionListener() {
@@ -160,12 +162,7 @@ public class OAuth1 {
 			}
 		});
 
-		atr.addVerifiedListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				onDisposeLogin(backForm, wb);
-			}
-		});
-		wb.addLoadListener(atr);
+		wb.addStartListener(atr);
 		String url = serviceProvider.getAuthenticateUrl(requestToken);
 		wb.setURL(url);
 		onDisplayLogin(backForm, wb);
@@ -178,6 +175,7 @@ public class OAuth1 {
 	 */
 	public void onDisplayLogin(final Form backForm, final WebBrowser webBrowser) {
 		Form form = new Form("Login");
+		form.setScrollableY(false);
 		if (backForm != null) {
 			Command cancel = new Command("Cancel") {
 				public void actionPerformed(ActionEvent ev) {
