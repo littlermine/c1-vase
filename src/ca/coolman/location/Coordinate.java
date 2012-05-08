@@ -24,6 +24,7 @@
  */
 package ca.coolman.location;
 
+import com.codename1.location.Location;
 import com.codename1.maps.Coord;
 
 /**
@@ -34,6 +35,13 @@ import com.codename1.maps.Coord;
  */
 public class Coordinate implements LookupSubject {
 	private Coord coord;
+
+	/**
+	 * @param coord
+	 */
+	public Coordinate(Location location) {
+		this(location.getLatitude(), location.getLongtitude());
+	}
 
 	/**
 	 * @param coord
