@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="vase-skins" basedir="." default="skins">
-	<target name="skins" depends="e71-skin,galaxy-nexus-skin,nokia-2760-skin,viewty-skin,dext-skin,bold-9790-skin,curve-8320-skin,mid7012-skin,samsung-sgh-a747-skin,nexus-s-skin">
+	<target name="skins" depends="e71-skin,galaxy-nexus-skin,nokia-2760-skin,lumia-900-skin,viewty-skin,dext-skin,bold-9790-skin,curve-8320-skin,mid7012-skin,samsung-sgh-a747-skin,nexus-s-skin">
 	</target>
 	
 	<target name="e71-skin">
@@ -32,6 +32,12 @@
 		<zip destfile="BlackberryBold9790.skin">
 		    <fileset dir="BlackberryBold9790" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
 		    <fileset dir="shared/rim" includes="*.ttf,*.res"/>
+		  </zip>
+	</target>
+	<target name="lumia-900-skin">
+		<zip destfile="NokiaLumia900.skin">
+		    <fileset dir="NokiaLumia900" includes="**/*.png,../share/*.ttf,**/skin.properties,**/*.res"/>
+		    <fileset dir="shared/win" includes="*.ttf,*.res"/>
 		  </zip>
 	</target>
 	<target name="curve-8320-skin">
