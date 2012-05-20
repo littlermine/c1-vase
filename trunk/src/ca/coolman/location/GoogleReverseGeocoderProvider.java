@@ -32,6 +32,8 @@ import com.codename1.io.NetworkManager;
 import com.codename1.maps.Coord;
 
 /**
+ * A reverse geocoder implementation using Google Maps provider.
+ * 
  * @author ecoolman
  * 
  */
