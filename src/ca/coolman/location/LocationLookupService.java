@@ -24,21 +24,39 @@
  */
 package ca.coolman.location;
 
-import com.codename1.location.Location;
+import java.util.Hashtable;
 
 /**
  * @author Eric Coolman
- *
+ * 
  */
-public class LocationLookup {
+public class LocationLookupService {
 	private LookupProvider provider;
-	
-	public LocationLookup(LookupProvider provider) {
+
+	private static Hashtable keys;
+
+	public LocationLookupService(LookupProvider provider) {
 		this.provider = provider;
 	}
-	
-	public Location getLocation(LookupSubject subject) {
+
+	public LookupLocation getLocation(LookupSubject subject) {
 		return provider.getLocation(subject);
 	}
-	
+
+	public static LocationLookupService createLookupByIP() {
+		String apikey = null;
+		if (keys != null && keys.containsKey(IPInfoDBProvider.class)) {
+			apikey = (String) keys.get(IPInfoDBProvider.class);
+		}
+		return new LocationLookupService(new IPInfoDBProvider(apikey));
+	}
+
+	public static LocationLookupService createLookupByGeocode() {
+		String apikey = null;
+		if (keys != null && keys.containsKey(GoogleReverseGeocoderProvider.class)) {
+			apikey = (String) keys.get(GoogleReverseGeocoderProvider.class);
+		}
+		// TODO: update the geocoder to accept key
+		return new LocationLookupService(new GoogleReverseGeocoderProvider());
+	}
 }
